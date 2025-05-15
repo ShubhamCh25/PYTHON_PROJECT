@@ -1,15 +1,156 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>first</title>
+   <head>
+    <title>My Page</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{% static 'myapp/styles.css' %}">
     </head>
+
     <body>
-        <form method="POST"    enctype="multipart/form-data" >
+        <nav class="bg-indigo-900 py-2 md:py-4 shadow-lg">
+            <div class="container px-4 md:flex md:items-center mx-auto">
+                <a href="#" class="font-bold text-xl text-white">Propfolio</a>
+            </div>
+
+        </nav>
+        <div class="bg-gray-100 p-10">
+            <div class="bg-indigo-100 pt-7 pb-7 m-3   ">
+                <div class="m-3 text-4xl text-blue-500 font-bold">Welcome, Shubham </div>
+                <div class="m-3 text-xl text-blue-400 font-bold">to your property expense website</div>
+            </div>
+        </div>
+        <form class="bg-white rounded px-8 pt-6 pb-8  pd-10 " method="POST"    enctype="multipart/form-data">
             {% csrf_token   %}
-            <input type="file" name="file" id="file"/><br/>
-            <input type="text" name="name" id="name"/>
-            <input type="submit" name="submit" id="submit"/>
-            <p>hello {{user}}</p>
+            <input class="inline-block font-bold text-blue-500 m-4" type="file" name="file" id="file"/>
+            
+            <input class="bg-blue-500 text-white font-bold py-2 px-4 m-4 rounded" type="submit" name="submit" id="submit"/>
+            
+            <table class="bg-gray-100 rounded" id="table">
+                <thead>
+                    <tr>
+                        <th class="px-6 py-2 text-sm text-gray-500">Property Name</th>
+                        <th  class="px-6 py-2 text-sm text-gray-500">Price</th>
+                        <th  class="px-6 py-2 text-sm text-gray-500">Rent</th>
+                        <th  class="px-6 py-2 text-sm text-gray-500">EMI</th>
+                        <th  class="px-6 py-2 text-sm text-gray-500">Tax</th>
+                        <th  class="px-6 py-2 text-sm text-gray-500">Monthly Expense</th>
+                        <th  class="px-6 py-2 text-sm text-gray-500">Net Expenses</th>
+                        <th  class="px-6 py-2 text-sm text-gray-500">Net Income</th>
+                    </tr>
+                    
+                </thead>
+                <tbody>
+                     {% for i in data_objects %}
+                 <tr><td class="px-6 py-2 text-sm text-gray-500">{{i.name}}</td>
+                    <td class="px-6 py-2 text-sm text-green-400">{{i.price}}</td>
+                    <td class="px-6 py-2 text-sm text-green-500">{{i.rent}}</td>
+                    <td class="px-6 py-2 text-sm text-red-500">{{i.emi}}</td>
+                    <td class="px-6 py-2 text-sm text-red-500">{{i.tax}}</td>
+                    <td class="px-6 py-2 text-sm text-red-500">{{i.exp}}</td>
+                    <td class="px-6 py-2 text-sm text-red-500">{{i.expenses_monthly}}</td>
+                    <td class="px-6 py-2 text-sm text-green-500">{{i.incomes_monthly}}</td>
+                
+                </tr>
+                     {% endfor %}
+                <tr>
+                  <td  class="px-6 py-2 text-sm font-bold">Total</td>
+                    <td id="total_cost" class="px-6 py-2 text-sm  font-bold">0</td>
+                    <td id="total_rent" class="px-6 py-2 text-sm font-bold">0</td>
+                    <td id="total_emi" class="px-6 py-2 text-sm font-bold">0</td>
+                    <td id="total_tax" class="px-6 py-2 text-sm font-bold">0</td>
+                    <td id="total_mon_exp" class="px-6 py-2 text-sm font-bold">0</td>
+                    <td id="total_exp" class="px-6 py-2 text-sm font-bold">0</td>
+                    <td id="total_inc" class="px-6 py-2 text-sm font-bold">0</td>
+                </tr>
+                </tbody>
+            </table>
+           
         </form>
+        <div class="flex gap-8 m-10">
+            <div class="w-1/2">
+                <div class="text-indigo-600 font-bold ,-10">Income Chart</div>
+                <canvas id="myChart" height="200" width="200" ></canvas>
+            </div>
+            <div class="w-1/2">
+                <div class="text-indigo-600 font-bold ,-10">Expense Chart</div>
+                <canvas id="myChart2" height="200" width="200" ></canvas>
+            </div>
+        </div>
+        
+        <script>
+            
+            names=[];
+            total_incomes=[];
+            total_expenses=[];
+            let t=document.getElementById("table");
+            let total_cost=0,total_rent=0,total_emi=0,total_mon_exp=0,total_inc=0,total_exp=0,total_tax=0;
+            for(let i=1;i<t.rows.length-1;i++){
+                let temp=t.rows[i].cells[1].innerText;
+                names.push(t.rows[i].cells[0].innerText);
+                total_cost+=parseInt(temp);
+                total_rent+=parseInt(t.rows[i].cells[2].innerText);
+                total_emi+=parseInt(t.rows[i].cells[3].innerText);
+                total_tax+=parseInt(t.rows[i].cells[4].innerText);
+                total_mon_exp+=parseInt(t.rows[i].cells[5].innerText);
+       
+                total_exp+=parseInt(t.rows[i].cells[6].innerText);  
+                total_inc+=parseInt(t.rows[i].cells[7].innerText);
+                total_incomes.push(parseInt(t.rows[i].cells[7].innerText));
+                total_expenses.push(t.rows[i].cells[6].innerText);
+            }
+            console.log(names);
+            document.getElementById("total_cost").innerText=total_cost;
+            document.getElementById("total_emi").innerText=total_emi;
+            document.getElementById("total_rent").innerText=total_rent;
+            document.getElementById("total_exp").innerText=total_exp;
+            document.getElementById("total_mon_exp").innerText=total_mon_exp;
+            document.getElementById("total_inc").innerText=total_inc;
+
+            document.getElementById("total_tax").innerText=total_tax;
+         
+    const ctx = document.getElementById('myChart');
+     new Chart(ctx, {
+        type: 'bar',
+        data: {
+         labels: names,
+         datasets: [{
+        label: 'income in dollars',
+        data: total_incomes,
+        backgroundColor:['rgba(75,192,192,1)','rgba(75,192,192,1)','rgba(75,192,192,1)','rgba(75,192,192,1)','rgba(75,192,192,1)'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+  const ctx2 = document.getElementById('myChart2');
+     new Chart(ctx2, {
+        type: 'bar',
+        data: {
+         labels: names,
+         datasets: [{
+        label: 'Expense in dollars',
+        data: total_incomes,
+        backgroundColor:['rgba(255,99,132,1)','rgba(255,99,132,1)','rgba(255,99,132,1)','rgba(255,99,132,1)','rgba(255,99,132,1)'],
+        borderWidth: 1,
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+        </script>
     </body>
+
 </html>
